@@ -1,0 +1,43 @@
+{
+    "Config": {
+        "channel": [],
+        "rate": 250000,
+        "samples": 50000,
+        "presamples": 5000,
+        "threshold": 0.03
+    },
+    "main": {
+        "base_x": 1000,
+        "base_w": 500,
+        "peak_max": 1000,
+        "peak_x": 3,
+        "peak_w": 10,
+        "rise_high": 0.9,
+        "rise_low": 0.1,
+        "decay_high": 0.9,
+        "decay_low": 0.1,
+        "area_x": 1000,
+        "area_w": 5000,
+        "fit_func": "monoExp",
+        "fit_x": 5000,
+        "fit_w": 50000,
+        "fit_p0": [
+            0.1,
+            1e-05
+        ],
+        "mv_w": 0,
+        "cutoff": 1e4
+    },
+    "select": {
+        "samples-=": 50000,
+        "height->": 0.03,
+        "rSquared->": 0,
+        "error-!": 0
+    },
+    "graugh": {
+        "xlim->": 0.0,
+        "xlim-<": 0.2,
+        "log": false,
+        "diff": false
+    }
+}
