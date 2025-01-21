@@ -15,23 +15,25 @@ import re
 import matplotlib.cm as cm
 import tqdm
 
-Data_path="d:/tagawa/20241203/room1_ch1ch2_220mK_920uA920uA_gain5_trig0.2V_rate500k_samples100k"
+Data_path = "G:/tagawa/20250116/room1ch2ch3_180mK_800uA800uA_difftrig1E-5_rate500k_samples100k_gain10"
 
 
 def ReadPulse(pulse,path):
     with open(f"{Data_path}/setting.json") as f:
         jsn = json.load(f)
-
-    ws = jsn["main"]["cutoff"] / jsn["Config"]["rate"] * 2
-    b, a = signal.bessel(2, ws, "low")
-
-    base = np.mean(pulse[jsn["Config"]["presamples"] - jsn["main"]["base_x"] : jsn["Config"]["presamples"] - jsn["main"]["base_x"] + jsn["main"]["base_w"]])
-    pulse=pulse-base
-
-    if jsn["main"]["cutoff"]>0:
-        pulse = signal.filtfilt(b, a, pulse)
-
     try:
+        ws = jsn["main"]["cutoff"] / jsn["Config"]["rate"] * 2
+        b, a = signal.bessel(2, ws, "low")
+
+        base = np.mean(pulse[jsn["Config"]["presamples"] - jsn["main"]["base_x"] : jsn["Config"]["presamples"] - jsn["main"]["base_x"] + jsn["main"]["base_w"]])
+        pulse=pulse-base
+
+        try:
+
+            if jsn["main"]["cutoff"]>0:
+                pulse = signal.filtfilt(b, a, pulse)
+        except:
+            print("filt err")
 
         peak = np.max(pulse[jsn["Config"]["presamples"] : jsn["Config"]["presamples"] + jsn["main"]["peak_max"]])
         peak_index = np.argmax(pulse[jsn["Config"]["presamples"] : jsn["Config"]["presamples"] + jsn["main"]["peak_max"]]) + jsn["Config"]["presamples"]
@@ -39,50 +41,51 @@ def ReadPulse(pulse,path):
 
         for i in reversed(range(0, peak_index)):
             if pulse[i] <= peak * jsn["main"]["rise_high"]:
-                rise_90 = i
+                rise_high = i
                 break
 
         try:
-            rise_90+=0
+            rise_high+=0
         except:
-            rise_90=0
-        for j in reversed(range(0, rise_90)):
+            rise_high=0
+        for j in reversed(range(0, rise_high)):
             if pulse[j] <= peak * jsn["main"]["rise_low"]:
-                rise_10 = j
+                rise_low = j
                 break
 
         try:
-            rise_10+=0
+            rise_low+=0
         except:
-            rise_10=0
+            rise_low=0
 
-        rise = (rise_90 - rise_10) / jsn["Config"]["rate"]
+        rise = (rise_high - rise_low) / jsn["Config"]["rate"]
 
         for i in range(peak_index, len(pulse)):
             if pulse[i] <= peak * jsn["main"]["decay_high"]:
-                decay_90 = i
+                decay_high = i
                 break
         try:
-            decay_90+=0
+            decay_high+=0
         except:
-            decay_90=0
-        for j in range(decay_90, len(pulse)):
+            decay_high=0
+        for j in range(decay_high, len(pulse)):
             if pulse[j] <= peak * jsn["main"]["decay_low"]:
-                decay_10 = j
+                decay_low = j
                 break
 
         try:
-            decay_10+=0
+            decay_low+=0
         except:
-            decay_10=0
+            decay_low=0
 
-        decay = (decay_10 - decay_90) / jsn["Config"]["rate"]
+        decay = (decay_low - decay_high) / jsn["Config"]["rate"]
 
         area=np.sum(pulse[peak_index - jsn["main"]["area_x"] : peak_index - jsn["main"]["area_x"] + jsn["main"]["area_w"]])
 
         return [base,peak_av,peak_index,rise,decay,area]
     except:
         print(path)
+        return [0,0,0,0,0,0]
 
 def checkPulse():
     Channels = []
@@ -138,11 +141,59 @@ def checkPulse():
     ws = jsn["main"]["cutoff"] / jsn["Config"]["rate"] * 2
     b, a = signal.bessel(2, ws, "low")
 
+    
+
     if jsn["main"]["cutoff"]>0:
         pulse = signal.filtfilt(b, a, pulse)
         plt.plot(time,pulse,label="Bessel",color="red")
 
+    peak = np.max(pulse[jsn["Config"]["presamples"] : jsn["Config"]["presamples"] + jsn["main"]["peak_max"]])
+
+    for i in reversed(range(0, result[2])):
+        if pulse[i] <= peak * jsn["main"]["rise_high"]:
+            rise_high = i
+            break
+
+    try:
+        rise_high+=0
+    except:
+        rise_high=0
+    for j in reversed(range(0, rise_high)):
+        if pulse[j] <= peak * jsn["main"]["rise_low"]:
+            rise_low = j
+            break
+    try:
+        rise_low+=0
+    except:
+        rise_low=0
+
+    for i in range(result[2], len(pulse)):
+        if pulse[i] <= peak * jsn["main"]["decay_high"]:
+            decay_high = i
+            break
+    try:
+        decay_high+=0
+    except:
+        decay_high=0
+    for j in range(decay_high, len(pulse)):
+        if pulse[j] <= peak * jsn["main"]["decay_low"]:
+            decay_low = j
+            break
+
+    try:
+        decay_low+=0
+    except:
+        decay_low=0
+
+    plt.axvline(x=time[jsn["Config"]["presamples"]],label="presamples",color="gray",linestyle="--")
+    plt.axvline(x=time[(jsn["Config"]["presamples"] + jsn["main"]["peak_max"])],label="peak end",color="black",linestyle="--")
+    plt.axvline(x=time[rise_low],label="rise_low",color="red",linestyle="--")
+    plt.axvline(x=time[rise_high],label="rise_high",color="orange",linestyle="--")
+    plt.axvline(x=time[decay_low],label="decay_low",color="blue",linestyle="--")
+    plt.axvline(x=time[decay_high],label="decay_high",color="green",linestyle="--")
+
     plt.plot(result[2]/jsn["Config"]["rate"],result[1],marker="o",markersize=10,label="peak_av")
+    plt.scatter(time[result[2]],pulse[result[2]],label="peak")
     plt.legend()
     plt.grid()
     plt.xlabel("Time[s]")
@@ -167,6 +218,7 @@ def NormalOutput():
         pulse_pathes = natsorted(glob.glob(f'{Data_path}/CH{ch}_pulse/rawdata/CH{ch}_*.dat'))
         results=[]
         pulse_numbers=[]
+        #pulse_pathes=list(reversed(pulse_pathes))
         for path in tqdm.tqdm(pulse_pathes):
             pattern = fr'CH{ch}_(\d+).dat'
             match = re.search(pattern, path)
@@ -181,4 +233,4 @@ def NormalOutput():
         df.to_csv(f"{Data_path}/CH{ch}_pulse/output.csv")    
 
 NormalOutput()
-checkPulse()
+#checkPulse()
