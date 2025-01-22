@@ -232,5 +232,5 @@ def NormalOutput():
         df = pd.DataFrame(results,columns=columns,index=pulse_numbers)
         df.to_csv(f"{Data_path}/CH{ch}_pulse/output.csv")    
 
-NormalOutput()
-#checkPulse()
+#NormalOutput()
+checkPulse()

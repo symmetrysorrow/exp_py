@@ -52,7 +52,7 @@ cutoff = 10e3  # ローパスフィルタのカットオフ周波数 (10 kHz)
 n_samples = 100000  # 処理するサンプル数
 
 # CH0の平均パルスを計算
-index_file_path_ch0 = "G:/tagawa/20250116/room1ch2ch3_180mK_800uA800uA_difftrig1E-5_rate500k_samples100k_gain10/CH0_pulse/region_2_index.txt"
+index_file_path_ch0 = "G:/tagawa/20250116/room1ch2ch3_180mK_800uA800uA_difftrig1E-5_rate500k_samples100k_gain10/CH0_pulse/region_11_index.txt"
 base_dir_ch0 = "G:/tagawa/20250116/room1ch2ch3_180mK_800uA800uA_difftrig1E-5_rate500k_samples100k_gain10/CH0_pulse"
 average_pulse_ch0 = calculate_average_pulse(index_file_path_ch0, base_dir_ch0, fs, cutoff, n_samples, "CH0")
 
@@ -68,7 +68,7 @@ time = np.linspace(0, (n_samples - 1) / fs, n_samples)
 plt.figure(figsize=(12, 6))
 plt.plot(time, average_pulse_ch0, label='Average Pulse (CH0)', linewidth=1.2, color='blue')
 plt.plot(time, average_pulse_ch1, label='Average Pulse (CH1)', linewidth=1.2, color='red')
-plt.title('Average Pulse for CH0 and CH1')
+plt.title('Average Pulse CH0 and CH1')
 plt.xlabel('Time (seconds)')
 plt.ylabel('Amplitude (µA)')
 plt.legend()

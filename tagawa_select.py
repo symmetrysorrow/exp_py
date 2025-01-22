@@ -2,8 +2,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 # ファイルの読み込み
-file_path_0 = "F:/tagawa/20250117/room1ch2ch3_180mK_800uA800uA_difftrig1E-5_rate500k_samples100k_gain10/CH0_pulse/output.csv"  # output0のファイル名
-file_path_1 = "F:/tagawa/20250117/room1ch2ch3_180mK_800uA800uA_difftrig1E-5_rate500k_samples100k_gain10/CH1_pulse/output.csv"    # output1のファイル名
+file_path_0 = "G:/tagawa/20250116/room1ch2ch3_180mK_800uA800uA_difftrig1E-5_rate500k_samples100k_gain10/CH0_pulse/output.csv"   # output0のファイル名
+file_path_1 = "G:/tagawa/20250116/room1ch2ch3_180mK_800uA800uA_difftrig1E-5_rate500k_samples100k_gain10/CH1_pulse/output.csv"   # output1のファイル名
 
 # 各ファイルをDataFrameに読み込む
 df0 = pd.read_csv(file_path_0)

@@ -1,21 +1,21 @@
 {
     "Config": {
         "channel": [],
-        "rate": 250000,
-        "samples": 50000,
+        "rate": 500e3,
+        "samples": 100e3,
         "presamples": 5000,
         "threshold": 0.03
     },
     "main": {
         "base_x": 1000,
         "base_w": 500,
-        "peak_max": 1000,
+        "peak_max": 5000,
         "peak_x": 3,
-        "peak_w": 10,
+        "peak_w": 50,
         "rise_high": 0.9,
         "rise_low": 0.1,
         "decay_high": 0.9,
-        "decay_low": 0.1,
+        "decay_low": 0.5,
         "area_x": 1000,
         "area_w": 5000,
         "fit_func": "monoExp",
