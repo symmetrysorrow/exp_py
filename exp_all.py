@@ -17,7 +17,6 @@ import tqdm
 
 Data_path = "G:/tagawa/20250116/room1ch2ch3_180mK_800uA800uA_difftrig1E-5_rate500k_samples100k_gain10"
 
-
 def ReadPulse(pulse,path):
     with open(f"{Data_path}/setting.json") as f:
         jsn = json.load(f)
@@ -200,7 +199,6 @@ def checkPulse():
     plt.ylabel("amplitude[V]")
     plt.show()
 
-
 def NormalOutput():
     print("normal")
     with open(f"{Data_path}/setting.json") as f:
@@ -230,7 +228,37 @@ def NormalOutput():
 
         columns=["base","height","peak_index","rise","decay","area"]
         df = pd.DataFrame(results,columns=columns,index=pulse_numbers)
-        df.to_csv(f"{Data_path}/CH{ch}_pulse/output.csv")    
+        df.to_csv(f"{Data_path}/CH{ch}_pulse/output.csv") 
+
+def AveragePulse():
+    with open(f"{Data_path}/setting.json") as f:
+        jsn = json.load(f)
+
+    pattern = re.compile(r'CH(\d+)_pulse')
+    Channels = []
+    for folder_name in os.listdir(Data_path):
+        match = pattern.match(folder_name)
+        if match:
+            Channels.append(int(match.group(1)))
+    cnt=1
+    for ch in Channels:
+        print(f"{cnt}/{len(Channels)}")
+        cnt+=1
+        pulse_pathes = natsorted(glob.glob(f'{Data_path}/CH{ch}_pulse/rawdata/CH{ch}_*.dat'))
+        pulse_list = []
+        for path in tqdm.tqdm(pulse_pathes):
+            with open(path, "rb") as fb:
+                fb.seek(4)
+                data = np.frombuffer(fb.read(), dtype="float64")
+                pulse_list.append(data)
+        pulse_array = np.stack(pulse_list, axis=0)
+
+        # 平均パルス計算（形状: [pulse_length]）
+        mean_pulse = np.mean(pulse_array, axis=0)
+
+        np.savetxt(f"{Data_path}/CH{ch}_saveragepulse.dat",mean_pulse)  
+    
 
 #NormalOutput()
 checkPulse()
+AveragePulse()
